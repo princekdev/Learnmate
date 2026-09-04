@@ -1,0 +1,15 @@
+{
+  "name": "learnmate",
+  "version": "1.0.0",
+  "description": "LearnMate – Agentic AI for Personalized Course Pathways",
+  "scripts": {
+    "install:all": "npm install && cd client && npm install && cd ../server && npm install",
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm run dev",
+    "start:server": "cd server && npm start",
+    "build:client": "cd client && npm run build"
+  },
+  "keywords": ["learnmate", "ai", "education", "mern", "ibm-granite"],
+  "author": "",
+  "license": "ISC"
+}
