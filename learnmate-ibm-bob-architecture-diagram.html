@@ -1,0 +1,488 @@
+
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>LearnMate — Architecture Blueprint</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  background:#f0f2f5;
+  font-family:"Segoe UI",Arial,sans-serif;
+  font-size:11px;
+  color:#1a1a2e;
+  padding:24px;
+  min-width:1100px;
+}
+h1{
+  text-align:center;
+  font-size:18px;
+  font-weight:700;
+  color:#1a1a2e;
+  margin-bottom:4px;
+  letter-spacing:.03em;
+}
+.subtitle{text-align:center;font-size:11px;color:#555;margin-bottom:20px;}
+
+/* Main canvas */
+.canvas{
+  position:relative;
+  width:1060px;
+  margin:0 auto;
+  background:#ffffff;
+  border:2px solid #c0c4cc;
+  border-radius:10px;
+  padding:24px 20px 30px;
+  box-shadow:0 4px 24px rgba(0,0,0,.10);
+}
+
+/* SVG arrow overlay */
+.arrow-svg{
+  position:absolute;
+  top:0;left:0;
+  width:100%;height:100%;
+  pointer-events:none;
+  overflow:visible;
+}
+
+/* ── ZONES ── */
+.zone{
+  position:absolute;
+  border-radius:10px;
+  border:2px dashed;
+}
+.zone-label{
+  position:absolute;
+  top:-13px; left:10px;
+  font-size:9.5px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  padding:1px 8px;
+  border-radius:4px;
+  white-space:nowrap;
+}
+
+/* ── GROUP BOXES ── */
+.group{
+  position:absolute;
+  border-radius:8px;
+  border:1.5px solid;
+  padding:22px 10px 10px;
+}
+.group-title{
+  position:absolute;
+  top:-12px; left:10px;
+  font-size:9px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.07em;
+  padding:1px 7px;
+  border-radius:3px;
+  white-space:nowrap;
+}
+
+/* ── COMPONENT BOXES ── */
+.box{
+  position:absolute;
+  border-radius:6px;
+  border:1.5px solid;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:4px 6px;
+  font-size:9.5px;
+  font-weight:600;
+  line-height:1.3;
+  gap:2px;
+}
+.box svg{width:20px;height:20px;}
+
+/* IBM logo text */
+.ibm-logo{
+  font-size:13px;
+  font-weight:900;
+  font-family:"Segoe UI",Arial,sans-serif;
+  color:#0043ce;
+  letter-spacing:-.5px;
+  line-height:1;
+}
+.ibm-logo.sm{font-size:10px;}
+
+/* Colors */
+.c-blue  {background:#e8f0fe;border-color:#4285f4;color:#1a3a6b;}
+.c-green {background:#e6f4ea;border-color:#34a853;color:#1a4a25;}
+.c-purple{background:#f3e8fd;border-color:#9334e6;color:#3b0a6b;}
+.c-orange{background:#fff3e0;border-color:#f57c00;color:#6b2e00;}
+.c-red   {background:#fce8e6;border-color:#ea4335;color:#6b0f08;}
+.c-ibm   {background:#dce8ff;border-color:#0043ce;color:#0043ce;}
+.c-gray  {background:#f4f4f4;border-color:#999;color:#333;}
+.c-teal  {background:#e0f5f5;border-color:#00897b;color:#004d40;}
+.c-yellow{background:#fffde7;border-color:#f9a825;color:#5a3e00;}
+
+/* zone colors */
+.z-user  {border-color:#4285f4;background:rgba(66,133,244,.04);}
+.z-server{border-color:#34a853;background:rgba(52,168,83,.04);}
+.z-ibm   {border-color:#0043ce;background:rgba(0,67,206,.04);}
+.z-db    {border-color:#ea4335;background:rgba(234,67,53,.04);}
+
+/* label colors */
+.lbl-blue  {background:#4285f4;color:#fff;}
+.lbl-green {background:#34a853;color:#fff;}
+.lbl-ibm   {background:#0043ce;color:#fff;}
+.lbl-red   {background:#ea4335;color:#fff;}
+.lbl-orange{background:#f57c00;color:#fff;}
+.lbl-purple{background:#9334e6;color:#fff;}
+
+/* icon shapes */
+.icon-db{
+  width:18px;height:18px;
+  border-radius:50% 50% 0 0 / 30% 30% 0 0;
+  border:2px solid currentColor;
+  background:transparent;
+  position:relative;
+  display:inline-block;
+}
+.icon-cloud{font-size:16px;}
+.icon-lock {font-size:14px;}
+.icon-bot  {font-size:16px;}
+.icon-doc  {font-size:14px;}
+.icon-chart{font-size:14px;}
+
+/* Legend */
+.legend{
+  position:absolute;
+  bottom:14px; right:14px;
+  background:#f9f9f9;
+  border:1px solid #ddd;
+  border-radius:6px;
+  padding:8px 12px;
+  font-size:9.5px;
+}
+.legend-row{display:flex;align-items:center;gap:5px;margin-bottom:3px;}
+.leg-line{width:28px;height:2px;display:inline-block;}
+.leg-dash{background:repeating-linear-gradient(90deg,#999 0 4px,transparent 4px 8px);}
+
+.footer{
+  text-align:center;
+  font-size:10px;
+  color:#aaa;
+  margin-top:14px;
+  border-top:1px solid #e5e7eb;
+  padding-top:10px;
+}
+</style>
+</head>
+<body>
+
+<h1>LearnMate — Architecture Blueprint</h1>
+<div class="subtitle">IBM Bob · MERN Stack + IBM Granite (watsonx.ai) · Agentic AI Personalized Learning Platform</div>
+
+<div class="canvas" style="height:680px">
+
+
+<svg class="arrow-svg" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arr">
+      <path d="M0,0 L0,6 L8,3 z" fill="#555"></path>
+    </marker>
+    <marker id="arr-blue">
+      <path d="M0,0 L0,6 L8,3 z" fill="#4285f4"></path>
+    </marker>
+    <marker id="arr-green">
+      <path d="M0,0 L0,6 L8,3 z" fill="#34a853"></path>
+    </marker>
+    <marker id="arr-ibm">
+      <path d="M0,0 L0,6 L8,3 z" fill="#0043ce"></path>
+    </marker>
+    <marker id="arr-red">
+      <path d="M0,0 L0,6 L8,3 z" fill="#ea4335"></path>
+    </marker>
+    <marker id="arr-orange">
+      <path d="M0,0 L0,6 L8,3 z" fill="#f57c00"></path>
+    </marker>
+    <marker id="arr-purple">
+      <path d="M0,0 L0,6 L8,3 z" fill="#9334e6"></path>
+    </marker>
+  </defs>
+
+  
+  <line x1="75" y1="120" x2="75" y2="155" stroke="#4285f4" stroke-width="1.5" marker-end="url(#arr-blue)"></line>
+  
+  <line x1="75" y1="120" x2="155" y2="155" stroke="#4285f4" stroke-width="1.5" marker-end="url(#arr-blue)"></line>
+  
+  <line x1="100" y1="120" x2="220" y2="155" stroke="#4285f4" stroke-width="1.5" marker-end="url(#arr-blue)"></line>
+
+  
+  <line x1="230" y1="210" x2="300" y2="250" stroke="#34a853" stroke-width="2" marker-end="url(#arr-green)"></line>
+  <text x="240" y="237" font-size="8" fill="#34a853" font-weight="600">Axios /api/*</text>
+  <text x="240" y="247" font-size="8" fill="#34a853">Bearer JWT</text>
+
+  
+  <line x1="420" y1="300" x2="420" y2="335" stroke="#555" stroke-width="1.5" marker-end="url(#arr)"></line>
+
+  
+  <line x1="540" y1="370" x2="630" y2="340" stroke="#0043ce" stroke-width="2" marker-end="url(#arr-ibm)"></line>
+  <text x="548" y="356" font-size="8" fill="#0043ce" font-weight="600">AI calls</text>
+
+  
+  <line x1="490" y1="430" x2="490" y2="480" stroke="#ea4335" stroke-width="2" marker-end="url(#arr-red)"></line>
+  <text x="495" y="462" font-size="8" fill="#ea4335" font-weight="600">Mongoose</text>
+
+  
+  <line x1="730" y1="355" x2="810" y2="310" stroke="#0043ce" stroke-width="2" marker-end="url(#arr-ibm)"></line>
+  <text x="740" y="336" font-size="8" fill="#0043ce">API Key</text>
+
+  
+  <line x1="860" y1="330" x2="860" y2="365" stroke="#0043ce" stroke-width="2" marker-end="url(#arr-ibm)"></line>
+  <text x="865" y="352" font-size="8" fill="#0043ce">IAM Token</text>
+
+  
+  <line x1="860" y1="415" x2="860" y2="450" stroke="#0043ce" stroke-width="2" marker-end="url(#arr-ibm)"></line>
+
+  
+  <path d="M840,490 Q790,510 740,420 Q700,350 735,340" stroke="#9334e6" stroke-width="1.5" fill="none" marker-end="url(#arr-purple)"></path>
+  <text x="764" y="467" font-size="8" fill="#9334e6" font-weight="600">generated_text</text>
+
+  
+  <line x1="420" y1="370" x2="360" y2="430" stroke="#f57c00" stroke-width="1.5" marker-end="url(#arr-orange)"></line>
+
+  
+  <path d="M310,530 Q270,580 310,600 Q360,620 420,590 Q460,570 450,530" stroke="#34a853" stroke-width="1.5" fill="none" marker-end="url(#arr-green)"></path>
+  <text x="295" y="578" font-size="8" fill="#34a853">Adaptive loop</text>
+
+  
+  <path d="M300,300 Q250,270 230,240" stroke="#34a853" stroke-width="1.5" fill="none" marker-end="url(#arr-green)"></path>
+  <text x="238" y="270" font-size="8" fill="#34a853">JSON Response</text>
+
+</svg>
+
+
+
+
+<div class="zone z-user" style="left:20px;top:70px;width:290px;height:185px">
+  <span class="zone-label lbl-blue">🖥 Client Layer — React + Vite (port 5173)</span>
+</div>
+
+
+<div class="zone z-server" style="left:315px;top:220px;width:290px;height:330px">
+  <span class="zone-label lbl-green">⚙️ Server Layer — Express.js (port 5000)</span>
+</div>
+
+
+<div class="zone z-ibm" style="left:615px;top:230px;width:420px;height:310px">
+  <span class="zone-label lbl-ibm">☁️ IBM Cloud</span>
+</div>
+
+
+<div class="zone z-db" style="left:315px;top:560px;width:290px;height:95px">
+  <span class="zone-label lbl-red">🗄 MongoDB Atlas</span>
+</div>
+
+
+<div class="box c-gray" style="left:34px;top:30px;width:82px;height:52px">
+  <span style="font-size:22px">👤</span>
+  <span>Student / User</span>
+</div>
+
+
+
+
+<div class="box c-blue" style="left:28px;top:88px;width:70px;height:44px">
+  <span class="icon-lock">🔒</span>Login<br />Register
+</div>
+
+
+<div class="box c-blue" style="left:108px;top:88px;width:70px;height:44px">
+  <span>🧙</span>Onboarding<br />Wizard
+</div>
+
+
+<div class="box c-blue" style="left:188px;top:88px;width:66px;height:44px">
+  <span>📊</span>Dashboard
+</div>
+
+
+<div class="box c-teal" style="left:28px;top:148px;width:80px;height:36px;font-size:8.5px">
+  🔑 AuthContext<br />(JWT state)
+</div>
+
+
+<div class="box c-teal" style="left:118px;top:148px;width:68px;height:36px;font-size:8.5px">
+  📡 api.js<br />(Axios)
+</div>
+
+
+<div class="group c-blue" style="left:28px;top:193px;width:270px;height:55px;border-style:dotted">
+  <span class="group-title lbl-blue">Pages</span>
+  <div style="position:absolute;top:14px;left:6px;display:flex;flex-wrap:wrap;gap:4px">
+    <span style="background:#dbeafe;border:1px solid #93c5fd;border-radius:3px;padding:1px 5px;font-size:8.5px;font-weight:600;color:#1d4ed8">Roadmap</span>
+    <span style="background:#dbeafe;border:1px solid #93c5fd;border-radius:3px;padding:1px 5px;font-size:8.5px;font-weight:600;color:#1d4ed8">AI Coach</span>
+    <span style="background:#dbeafe;border:1px solid #93c5fd;border-radius:3px;padding:1px 5px;font-size:8.5px;font-weight:600;color:#1d4ed8">Assessment</span>
+    <span style="background:#dbeafe;border:1px solid #93c5fd;border-radius:3px;padding:1px 5px;font-size:8.5px;font-weight:600;color:#1d4ed8">Progress</span>
+    <span style="background:#dbeafe;border:1px solid #93c5fd;border-radius:3px;padding:1px 5px;font-size:8.5px;font-weight:600;color:#1d4ed8">Recommendations</span>
+    <span style="background:#dbeafe;border:1px solid #93c5fd;border-radius:3px;padding:1px 5px;font-size:8.5px;font-weight:600;color:#1d4ed8">Profile</span>
+  </div>
+</div>
+
+
+
+
+<div class="group" style="left:325px;top:248px;width:268px;height:44px;border-color:#999;background:#fafafa;border-style:dotted">
+  <span class="group-title" style="background:#888;color:#fff">Middleware</span>
+  <div style="position:absolute;top:14px;left:6px;display:flex;gap:5px">
+    <span style="background:#f3f4f6;border:1px solid #aaa;border-radius:3px;padding:1px 6px;font-size:8.5px;font-weight:600">🔒 JWT protect</span>
+    <span style="background:#f3f4f6;border:1px solid #aaa;border-radius:3px;padding:1px 6px;font-size:8.5px;font-weight:600">🚦 Rate Limit</span>
+    <span style="background:#f3f4f6;border:1px solid #aaa;border-radius:3px;padding:1px 6px;font-size:8.5px;font-weight:600">CORS</span>
+  </div>
+</div>
+
+
+<div class="group" style="left:325px;top:302px;width:268px;height:46px;border-color:#34a853;background:#f0fdf4;border-style:dotted">
+  <span class="group-title lbl-green">Routes</span>
+  <div style="position:absolute;top:14px;left:6px;display:flex;flex-wrap:wrap;gap:3px">
+    <span style="background:#dcfce7;border:1px solid #86efac;border-radius:3px;padding:1px 5px;font-size:8px;font-weight:600;color:#166534">/auth</span>
+    <span style="background:#dcfce7;border:1px solid #86efac;border-radius:3px;padding:1px 5px;font-size:8px;font-weight:600;color:#166534">/roadmap</span>
+    <span style="background:#dcfce7;border:1px solid #86efac;border-radius:3px;padding:1px 5px;font-size:8px;font-weight:600;color:#166534">/ai</span>
+    <span style="background:#dcfce7;border:1px solid #86efac;border-radius:3px;padding:1px 5px;font-size:8px;font-weight:600;color:#166534">/assessment</span>
+    <span style="background:#dcfce7;border:1px solid #86efac;border-radius:3px;padding:1px 5px;font-size:8px;font-weight:600;color:#166534">/progress</span>
+    <span style="background:#dcfce7;border:1px solid #86efac;border-radius:3px;padding:1px 5px;font-size:8px;font-weight:600;color:#166534">/users</span>
+    <span style="background:#dcfce7;border:1px solid #86efac;border-radius:3px;padding:1px 5px;font-size:8px;font-weight:600;color:#166534">/recs</span>
+  </div>
+</div>
+
+
+<div class="group" style="left:325px;top:358px;width:268px;height:56px;border-color:#f57c00;background:#fff7ed;border-style:dotted">
+  <span class="group-title lbl-orange">Controllers</span>
+  <div style="position:absolute;top:14px;left:6px;display:flex;flex-wrap:wrap;gap:3px">
+    <span style="background:#fed7aa;border:1px solid #fb923c;border-radius:3px;padding:1px 5px;font-size:8px;font-weight:600;color:#9a3412">authCtrl</span>
+    <span style="background:#fed7aa;border:1px solid #fb923c;border-radius:3px;padding:1px 5px;font-size:8px;font-weight:600;color:#9a3412">roadmapCtrl</span>
+    <span style="background:#fed7aa;border:1px solid #fb923c;border-radius:3px;padding:1px 5px;font-size:8px;font-weight:600;color:#9a3412">aiCtrl</span>
+    <span style="background:#fed7aa;border:1px solid #fb923c;border-radius:3px;padding:1px 5px;font-size:8px;font-weight:600;color:#9a3412">assessCtrl</span>
+    <span style="background:#fed7aa;border:1px solid #fb923c;border-radius:3px;padding:1px 5px;font-size:8px;font-weight:600;color:#9a3412">progressCtrl</span>
+    <span style="background:#fed7aa;border:1px solid #fb923c;border-radius:3px;padding:1px 5px;font-size:8px;font-weight:600;color:#9a3412">recCtrl</span>
+  </div>
+</div>
+
+
+<div class="group" style="left:325px;top:424px;width:268px;height:42px;border-color:#9334e6;background:#faf5ff;border-style:dotted">
+  <span class="group-title lbl-purple">Mongoose Models</span>
+  <div style="position:absolute;top:14px;left:6px;display:flex;flex-wrap:wrap;gap:3px">
+    <span style="background:#ede9fe;border:1px solid #c4b5fd;border-radius:3px;padding:1px 5px;font-size:8px;font-weight:600;color:#5b21b6">User</span>
+    <span style="background:#ede9fe;border:1px solid #c4b5fd;border-radius:3px;padding:1px 5px;font-size:8px;font-weight:600;color:#5b21b6">Roadmap</span>
+    <span style="background:#ede9fe;border:1px solid #c4b5fd;border-radius:3px;padding:1px 5px;font-size:8px;font-weight:600;color:#5b21b6">Progress</span>
+    <span style="background:#ede9fe;border:1px solid #c4b5fd;border-radius:3px;padding:1px 5px;font-size:8px;font-weight:600;color:#5b21b6">Assessment</span>
+    <span style="background:#ede9fe;border:1px solid #c4b5fd;border-radius:3px;padding:1px 5px;font-size:8px;font-weight:600;color:#5b21b6">Chat</span>
+    <span style="background:#ede9fe;border:1px solid #c4b5fd;border-radius:3px;padding:1px 5px;font-size:8px;font-weight:600;color:#5b21b6">Recs</span>
+  </div>
+</div>
+
+
+<div class="group" style="left:325px;top:475px;width:268px;height:72px;border-color:#34a853;background:#f0fdf4">
+  <span class="group-title lbl-green">🔄 Agentic Adaptive Loop</span>
+  <div style="position:absolute;top:16px;left:8px;font-size:8.5px;color:#166534;line-height:1.6">
+    1 Onboard → 2 Generate Roadmap → 3 Track Progress<br />
+    4 Analyze Progress → 5 Run Assessment<br />
+    6 Adapt Roadmap → 7 AI Coach Chat
+  </div>
+</div>
+
+
+<div class="box c-red" style="left:332px;top:575px;width:260px;height:68px;flex-direction:row;gap:6px;justify-content:center;flex-wrap:wrap;padding:4px">
+  <div style="text-align:center">
+    <div style="font-size:20px">🍃</div>
+    <div style="font-size:9px;font-weight:700">MongoDB Atlas</div>
+    <div style="font-size:8px;color:#888">6 collections</div>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:2px;align-items:center">
+    <span style="background:#fca5a5;border-radius:3px;padding:1px 4px;font-size:7.5px;font-weight:600;color:#7f1d1d">users</span>
+    <span style="background:#fca5a5;border-radius:3px;padding:1px 4px;font-size:7.5px;font-weight:600;color:#7f1d1d">roadmaps</span>
+    <span style="background:#fca5a5;border-radius:3px;padding:1px 4px;font-size:7.5px;font-weight:600;color:#7f1d1d">progress</span>
+    <span style="background:#fca5a5;border-radius:3px;padding:1px 4px;font-size:7.5px;font-weight:600;color:#7f1d1d">assessments</span>
+    <span style="background:#fca5a5;border-radius:3px;padding:1px 4px;font-size:7.5px;font-weight:600;color:#7f1d1d">chats</span>
+    <span style="background:#fca5a5;border-radius:3px;padding:1px 4px;font-size:7.5px;font-weight:600;color:#7f1d1d">recommendations</span>
+  </div>
+</div>
+
+
+
+
+<div style="position:absolute;left:750px;top:240px;font-size:22px;font-weight:900;color:#0043ce;letter-spacing:-1px;font-family:'Segoe UI',Arial,sans-serif">&gt;IBM</div>
+
+
+<div class="box c-ibm" style="left:625px;top:275px;width:140px;height:70px">
+  <div style="font-size:8.5px;font-weight:700;color:#0043ce;text-align:center">graniteService.js</div>
+  <div style="font-size:7.5px;color:#333;text-align:left;margin-top:2px;line-height:1.5">
+    • generateLearningRoadmap<br />
+    • generateAIChatResponse<br />
+    • generateSkillAssessment<br />
+    • evaluateAssessment<br />
+    • analyzeLearningProgress<br />
+    • adaptLearningRoadmap
+  </div>
+</div>
+
+
+<div class="box c-yellow" style="left:625px;top:360px;width:140px;height:32px;font-size:8px">
+  🔁 IAM Token Cache<br />(reused until expiry)
+</div>
+
+
+<div class="box c-ibm" style="left:810px;top:260px;width:108px;height:56px">
+  <div class="ibm-logo sm">&gt;IBM</div>
+  <div style="font-size:9.5px;font-weight:700;margin-top:2px">Cloud IAM</div>
+  <div style="font-size:8px;color:#555">iam.cloud.ibm.com</div>
+  <div style="font-size:7.5px;color:#0043ce">API Key → Token</div>
+</div>
+
+
+<div class="box c-ibm" style="left:810px;top:340px;width:108px;height:56px">
+  <div class="ibm-logo sm">&gt;IBM</div>
+  <div style="font-size:9.5px;font-weight:700;margin-top:2px">watsonx.ai</div>
+  <div style="font-size:8px;color:#555">/ml/v1/text/generation</div>
+  <div style="font-size:7.5px;color:#0043ce">us-south.ml.cloud.ibm.com</div>
+</div>
+
+
+<div class="box c-ibm" style="left:780px;top:420px;width:168px;height:88px">
+  <div class="ibm-logo" style="font-size:20px">&gt;IBM</div>
+  <div style="font-size:11px;font-weight:800;color:#0043ce;margin-top:2px">Granite LLM</div>
+  <div style="font-size:9px;color:#333;margin-top:1px;font-weight:600">granite-3-8b-instruct</div>
+  <div style="font-size:7.5px;color:#555;margin-top:2px;text-align:left;line-height:1.4">
+    Greedy decoding · max 3000 tokens<br />
+    repetition_penalty: 1.1<br />
+    7 AI prompt functions
+  </div>
+</div>
+
+
+<div style="position:absolute;left:625px;top:520px;width:340px;background:#f0f4ff;border:1.5px solid #0043ce;border-radius:6px;padding:8px 10px">
+  <div style="font-size:9px;font-weight:700;color:#0043ce;margin-bottom:4px">🤖 Agentic AI Capabilities</div>
+  <div style="display:flex;flex-wrap:wrap;gap:4px">
+    <span style="background:#dce8ff;border:1px solid #93c5fd;border-radius:3px;padding:1px 6px;font-size:8px;font-weight:600;color:#0043ce">Roadmap Generation</span>
+    <span style="background:#dce8ff;border:1px solid #93c5fd;border-radius:3px;padding:1px 6px;font-size:8px;font-weight:600;color:#0043ce">Adaptive Learning</span>
+    <span style="background:#dce8ff;border:1px solid #93c5fd;border-radius:3px;padding:1px 6px;font-size:8px;font-weight:600;color:#0043ce">AI Coach Chat</span>
+    <span style="background:#dce8ff;border:1px solid #93c5fd;border-radius:3px;padding:1px 6px;font-size:8px;font-weight:600;color:#0043ce">Skill Assessment</span>
+    <span style="background:#dce8ff;border:1px solid #93c5fd;border-radius:3px;padding:1px 6px;font-size:8px;font-weight:600;color:#0043ce">Progress Analysis</span>
+    <span style="background:#dce8ff;border:1px solid #93c5fd;border-radius:3px;padding:1px 6px;font-size:8px;font-weight:600;color:#0043ce">Smart Recommendations</span>
+  </div>
+</div>
+
+
+<div class="legend">
+  <div style="font-size:9px;font-weight:700;margin-bottom:4px">Legend</div>
+  <div class="legend-row"><span class="leg-line" style="background:#4285f4;height:2px"></span><span>User interaction</span></div>
+  <div class="legend-row"><span class="leg-line" style="background:#34a853;height:2px"></span><span>API request / response</span></div>
+  <div class="legend-row"><span class="leg-line" style="background:#0043ce;height:2px"></span><span>IBM Cloud / Granite call</span></div>
+  <div class="legend-row"><span class="leg-line" style="background:#9334e6;height:1.5px;border-top:2px dashed #9334e6;background:none"></span><span>AI response (generated_text)</span></div>
+  <div class="legend-row"><span class="leg-line" style="background:#ea4335;height:2px"></span><span>MongoDB (Mongoose)</span></div>
+  <div class="legend-row"><span class="leg-line" style="background:#f57c00;height:2px"></span><span>Internal data flow</span></div>
+</div>
+
+</div>
+
+<div class="footer">Made with IBM Bob</div>
+</body>
+</html>
